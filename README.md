@@ -1,8 +1,8 @@
 # Local CI/CD Pipeline on a Windows Laptop using WSL, KIND, GitLab Runner, Docker, AWS ECR, Snyk and Argo CD
 
-Recommended Project to see before this project: https://github.com/bhavukm/devops-cicd-production.git
+**Recommended Project to see before this project:** https://github.com/bhavukm/devops-cicd-production.git
 
-YouTube Video: https://youtu.be/eG9hJ1E1GbI
+**YouTube Video:** https://youtu.be/eG9hJ1E1GbI
 
 Reference project used: https://gitlab.com/bhavukm/springboot-app.git
 
@@ -45,34 +45,42 @@ The laptop needs:
 -   A second GitLab repository for GitOps
 -   A Snyk account/token if scanning is enabled
 
-Step 1: Open WSL
+**Step 1: Open WSL**
 
 Open your Ubuntu/WSL terminal:
 
-Step 2: Update packages
+**Step 2: Update packages**
+
 sudo apt update
+
 sudo apt upgrade -y
 
-Step 3: Install required tools
+**Step 3: Install required tools**
+
 sudo apt install -y curl ca-certificates git
 
 Verify:
+
 curl --version
+
 git --version
 
-Step 4: Add the official GitLab Runner repository
+**Step 4: Add the official GitLab Runner repository**
 
 curl -L "https://packages.gitlab.com/install/repositories/runner/gitlab-runner/script.deb.sh" -o /tmp/gitlab-runner-repo.sh
 
 Then run it:
+
 sudo bash /tmp/gitlab-runner-repo.sh
 
 This configures the official GitLab Runner package repository.
 
-Step 5: Install GitLab Runner
+**Step 5: Install GitLab Runner**
+
 sudo apt install -y gitlab-runner
 
-Step 6: Verify installation
+**Step 6: Verify installation**
+
 gitlab-runner --version
 
 You should get something similar to:
@@ -81,16 +89,18 @@ Git revision: ...
 GO version:   ...
 OS/Arch:      linux/amd64
 
-Step 7: Verify where Runner is installed
+**Step 7: Verify where Runner is installed**
+
 which gitlab-runner
 
 Expected:
+
 /usr/bin/gitlab-runner
 
 Then:
 ls -l /usr/bin/gitlab-runner
 
-Step 8: Check Runner status
+**Step 8: Check Runner status**
 
 First check:
 gitlab-runner status
@@ -109,7 +119,7 @@ Same shell executor
 
 Different tag: kind-local-2
 
-1. Create the second runner in GitLab
+**1. Create the second runner in GitLab**
 
 Go to:
 
@@ -137,7 +147,7 @@ Then click Create runner.
 
 GitLab will show you a temporary runner authentication token. Keep that page open. The current GitLab workflow uses runner authentication tokens, which normally start with glrt-.
 
-2. Register the second runner in your WSL
+**2. Register the second runner in your WSL**
 
 Open your WSL terminal.
 
@@ -185,7 +195,7 @@ You are registering another runner configuration with the existing GitLab Runner
 
 GitLab Runner supports multiple [[runners]] entries in the same configuration file.
 
-3. Verify that you now have TWO runners
+**3. Verify that you now have TWO runners**
 
 Run:
 
@@ -216,21 +226,29 @@ You should now have two [[runners]] sections.
 Something conceptually like:
 
 [[runners]]
+
   name = "bhavuk-wsl-kind-runner"
+  
   url = "https://gitlab.com/"
+  
   token = "glrt-XXXXXXXX"
+  
   executor = "shell"
 
 
 [[runners]]
+
   name = "bhavuk-wsl-kind-runner-2"
+  
   url = "https://gitlab.com/"
+  
   token = "glrt-YYYYYYYY"
+  
   executor = "shell"
 
 Do not show the tokens in your YouTube recording.
 
-4. Start the runner
+**4. Start the runner**
 
 Because you are using user-mode GitLab Runner, run:
 
@@ -254,15 +272,18 @@ You should see both runners being loaded from:
 
 /home/bhavuk/.gitlab-runner/config.toml
 
-5. Make sure the second runner has the correct tag
+**5. Make sure the second runner has the correct tag**
 
 This is important.
 
 Your current .gitlab-ci.yml has:
 
 test-local-runner:
+
   stage: test
+  
   tags:
+  
     - kind-local
 
 That job will therefore go to:
@@ -277,68 +298,73 @@ For the second runner, use:
 
 kind-local-2
 
-6. Add a test job for the second runner
+**6. Add a test job for the second runner**
 
 For your YouTube demonstration, I recommend temporarily adding this to .gitlab-ci.yml:
 
 runner-2-demo:
+
   stage: test
 
-
   tags:
+  
     - kind-local-2
 
-
   script:
+  
     - echo "========================================="
+    
     - echo "       SECOND RUNNER DEMONSTRATION"
+    
     - echo "========================================="
-
 
     - echo "Runner:"
+    
     - echo "$CI_RUNNER_DESCRIPTION"
 
-
     - echo "Runner ID:"
+    
     - echo "$CI_RUNNER_ID"
 
-
     - echo "Runner tags:"
+    
     - echo "$CI_RUNNER_TAGS"
-
 
     - echo "User:"
     - whoami
 
-
     - echo "Hostname:"
+    
     - hostname
 
-
     - echo "Kubernetes context:"
+    
     - kubectl config current-context
 
-
     - echo "Kubernetes nodes:"
+    
     - kubectl get nodes
 
-
     - echo "========================================="
+    
     - echo "Second runner is working!"
+    
     - echo "========================================="
 
 Now push the change.
 
-7. What you should see in GitLab
+**7. What you should see in GitLab**
 
 The pipeline should contain:
 
 test-local-runner
+
 runner-2-demo
 
 The first job:
 
 tags:
+
   - kind-local
 
 goes to:
@@ -354,86 +380,4 @@ goes to:
 
 bhavuk-wsl-kind-runner-2
 
-Both are actually executing on your same Windows laptop → WSL environment.
-
-That's a very good demonstration for your video.
-
-8. Very important distinction for your explanation
-
-You can explain it like this:
-
-                 GitLab.com
-                     |
-             GitLab Project
-             springboot-app
-                     |
-          +----------+----------+
-          |                     |
-       Job #1                Job #2
-     tag: kind-local       tag: kind-local-2
-          |                     |
-          v                     v
-   Runner #1               Runner #2
-   WSL runner              WSL runner
-          |                     |
-          +----------+----------+
-                     |
-                 Same WSL
-                     |
-              Same Windows PC
-                     |
-              Same KIND cluster
-
-So two GitLab runners do not necessarily mean two machines.
-
-You can have:
-
-1 Windows laptop
-      |
-      v
-1 WSL Ubuntu
-      |
-      +---- GitLab Runner #1
-      |
-      +---- GitLab Runner #2
-      |
-      +---- Docker
-      |
-      +---- kubectl
-      |
-      +---- KIND
-      |
-      +---- Argo CD
-
-The Shell executor runs the CI scripts directly on the machine where GitLab Runner is installed, which is exactly why your jobs can access your WSL kubectl, Docker, KIND cluster, and Argo CD.
-
-9. One more useful YouTube demonstration
-
-After showing the two runners working, change the tag:
-
-tags:
-  - kind-local-2
-
-to:
-
-tags:
-  - kind-local
-
-Run the pipeline again.
-
-Now the same job will execute on Runner #1.
-
-Then change it back:
-
-tags:
-  - kind-local-2
-
-and it executes on Runner #2.
-
-This gives you a very clean explanation of GitLab Runner tags and job routing.
-
-The key message for the video
-
-GitLab does not execute my CI commands on GitLab.com. GitLab schedules the job, and my self-hosted WSL runner pulls that job and executes the commands locally. Tags determine which runner receives the job.
-
-That is exactly the architecture you've built.
+Both are actually executing on the same Windows laptop → WSL environment.
