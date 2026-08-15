@@ -96,10 +96,15 @@ gitlab-runner status
 For your lab, I would make the second one deliberately obvious:
 
 Existing: bhavuk-wsl-kind-runner
+
 New: bhavuk-wsl-kind-runner-2
+
 Same WSL machine
+
 Same GitLab project: bhavukm/springboot-app
+
 Same shell executor
+
 Different tag: kind-local-2
 
 1. Create the second runner in GitLab
@@ -115,10 +120,15 @@ Create project runner
 Configure it approximately like this:
 
 Setting	Value
+
 Runner description	bhavuk-wsl-kind-runner-2
+
 Platform	Linux
+
 Tags	kind-local-2
+
 Run untagged jobs	OFF
+
 Protected	OFF for this lab
 
 Then click Create runner.
@@ -167,7 +177,11 @@ You should eventually see:
 
 Runner registered successfully.
 
-The important point for your video is that you don't install another GitLab Runner application. You are registering another runner configuration with the existing GitLab Runner installation. GitLab Runner supports multiple [[runners]] entries in the same configuration file.
+The important point for your video is that you don't install another GitLab Runner application.
+
+You are registering another runner configuration with the existing GitLab Runner installation. 
+
+GitLab Runner supports multiple [[runners]] entries in the same configuration file.
 
 3. Verify that you now have TWO runners
 
@@ -178,6 +192,7 @@ gitlab-runner list
 You should see something similar to:
 
 bhavuk-wsl-kind-runner
+
 bhavuk-wsl-kind-runner-2
 
 You can also run:
@@ -187,6 +202,7 @@ gitlab-runner verify
 Expected:
 
 Verifying runner... is valid
+
 Verifying runner... is valid
 
 And:
@@ -235,6 +251,7 @@ gitlab-runner run
 You should see both runners being loaded from:
 
 /home/bhavuk/.gitlab-runner/config.toml
+
 5. Make sure the second runner has the correct tag
 
 This is important.
@@ -257,6 +274,7 @@ kind-local
 For the second runner, use:
 
 kind-local-2
+
 6. Add a test job for the second runner
 
 For your YouTube demonstration, I recommend temporarily adding this to .gitlab-ci.yml:
