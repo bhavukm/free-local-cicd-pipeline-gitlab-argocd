@@ -20,44 +20,7 @@ that Git change into the local KIND cluster.
 ------------------------------------------------------------------------
 # Final Architecture
 
-Developer
-   |
-   | git push
-   v
-GitLab Repository: springboot-app
-   |
-   v
-GitLab Pipeline
-   |
-   +--> test
-   |
-   +--> platform_check
-   |
-   +--> validate
-   |
-   +--> build_and_package
-   |       |
-   |       +--> Docker build
-   |       +--> Amazon ECR
-   |
-   +--> scan
-   |       |
-   |       +--> Snyk
-   |
-   +--> update_gitops
-           |
-           v
-     GitOps Repository: cicdnew
-           |
-           | values.yaml
-           v
-         Argo CD
-           |
-           v
-     Local KIND Cluster
-           |
-           v
-     Spring Boot Application
+<img width="206" height="677" alt="image" src="https://github.com/user-attachments/assets/bde3798b-0eb2-42ac-988b-b764045be1c8" />
 
      Prerequisites
 
