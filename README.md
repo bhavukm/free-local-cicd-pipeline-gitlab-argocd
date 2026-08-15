@@ -1,5 +1,7 @@
 # Local CI/CD Pipeline on a Windows Laptop using WSL, KIND, GitLab Runner, Docker, AWS ECR, Snyk and Argo CD
 
+Recommended Project to see before this project: https://github.com/bhavukm/devops-cicd-production.git
+
 YouTube Video: https://youtu.be/eG9hJ1E1GbI
 
 Reference project used: https://gitlab.com/bhavukm/springboot-app.git
