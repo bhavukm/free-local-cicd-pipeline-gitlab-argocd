@@ -381,3 +381,30 @@ goes to:
 bhavuk-wsl-kind-runner-2
 
 Both are actually executing on the same Windows laptop → WSL environment.
+
+
+**How is Argo CD automatically deploying the latest image?**
+
+Argo CD is connected to my Git repository, and it is watching the charts/myapp directory.
+
+Inside that directory, I have a file called **values.yaml**. This file contains the Docker image repository and the image tag that should be deployed.
+
+For example:
+
+image.repository contains my ECR repository, and image.tag contains the version of the image.
+
+Every time I make a new code change, my GitLab CI/CD pipeline builds a new Docker image and tags it using the Git commit ID, using **CI_COMMIT_SHORT_SHA**.
+
+So, for example, if the new build creates the image tag d9e381d8, the pipeline automatically updates charts/myapp/values.yaml and changes the image tag to d9e381d8.
+
+The pipeline then commits and pushes this change back to Git.
+
+Argo CD is continuously watching this Git repository. When it detects that the Git repository has changed, it reads the updated values.yaml file and sees that the desired image tag has changed.
+
+Because I have enabled automatic sync in Argo CD, Argo CD automatically applies that new desired state to my Kubernetes cluster.
+
+So the complete flow is very simple:
+
+Code change → GitLab pipeline → Docker image build → ECR → values.yaml updated → Git commit → Argo CD detects the Git change → Argo CD automatically syncs → Kubernetes runs the new image.
+
+The important point is that Argo CD is not directly watching ECR for the latest image. It is watching Git, and Git tells Argo CD which exact image version should be deployed.
